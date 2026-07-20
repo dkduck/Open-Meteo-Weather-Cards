@@ -1,0 +1,84 @@
+type: custom:button-card
+entity: sensor.vejr_timelig_ra
+show_name: false
+show_icon: false
+show_state: false
+show_label: true
+label: |
+  [[[
+    const timelig = states['sensor.vejr_timelig_ra'];
+    if (!timelig || !timelig.attributes.time || !timelig.attributes.cape) return 'Data mangler';
+    
+    // 1. Find nuværende time-indeks
+    const nu = new Date();
+    const tider = timelig.attributes.time;
+    let idx_nu = tider.findIndex(t => new Date(t) >= nu);
+    if (idx_nu === -1) idx_nu = nu.getHours();
+    
+    // 2. Scan de næste 12 timer efter den højeste CAPE-værdi
+    const cape_array = timelig.attributes.cape;
+    let max_cape = 0;
+    let max_idx = idx_nu;
+    
+    for (let k = 0; k < 12; k++) {
+      const tjek_idx = idx_nu + k;
+      if (cape_array[tjek_idx] !== undefined) {
+        if (cape_array[tjek_idx] > max_cape) { max_cape = cape_array[tjek_idx]; max_idx = tjek_idx; }
+      }
+    }
+    
+    // Hent tidspunktet for hvornår energien topper
+    const d = new Date(tider[max_idx]);
+    const max_tid = d.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'});
+    
+    // 3. Definer status, farver og ikoner ud fra CAPE-energien
+    let ikon = '☀️';
+    let status_tekst = 'Stabil atmosfære';
+    let farve = '#a2c875'; // Flot rolig grøn
+    let sub_tekst = 'Ingen risiko for torden eller skybrud';
+    
+    if (max_cape >= 500) {
+      ikon = '⛈️';
+      status_tekst = 'Høj torden- & skybrudsrisiko';
+      farve = '#e05858'; // Advarselsrød
+      sub_tekst = `Kraftigt uvejr og lyn muligt omkring kl. ${max_tid}`;
+    } else if (max_cape >= 100) {
+      ikon = '⚡';
+      status_tekst = 'Ustabilt vejr / Byger';
+      farve = '#e07b39'; // Orange
+      sub_tekst = `Risiko for lokale tordenbyger kl. ${max_tid} (CAPE: ${max_cape})`;
+    } else if (max_cape > 0) {
+      ikon = '⛅';
+      status_tekst = 'Let ustabil luft';
+      farve = '#7eb8f7'; // Blå
+      sub_tekst = `Småbyger kan dannes (Konvektionsenergi: ${max_cape})`;
+    }
+    
+    return `
+      <div style="display: flex; align-items: center; width: 100%; padding: 12px; gap: 15px;">
+        <div style="font-size: 38px; line-height: 1; min-width: 45px; text-align: center;">${ikon}</div>
+        
+        <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left;">
+          <div style="font-size: 13px; font-weight: 700; uppercase; letter-spacing: 0.05em; color: var(--secondary-text-color); margin-bottom: 2px;">ATMOSFÆRISK STABILITET (12T)</div>
+          <div style="font-size: 20px; font-weight: 700; color: ${farve}; line-height: 1.2;">
+            ${status_tekst}
+          </div>
+          <div style="font-size: 14px; font-weight: 600; color: var(--primary-text-color); margin-top: 2px;">Max CAPE: <span style="color: #EBF527;">${max_cape}</span> J/kg</div>
+          <div style="font-size: 14px; color: #fff; margin-top: 1px; line-height: 1.2;">${sub_tekst}</div>
+        </div>
+      </div>
+    `;
+  ]]]
+styles:
+  card:
+    - background: var(--card-background-color)
+    - border-radius: 12px
+    - border: 1px solid var(--divider-color)
+    - padding: "0"
+    - height: 110px !important
+    - overflow: hidden
+  label:
+    - width: 100%
+    - height: 100%
+    - display: flex
+    - align-items: center
