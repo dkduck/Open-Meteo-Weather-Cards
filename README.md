@@ -1,5 +1,5 @@
 # Open‑Meteo Weather Cards
-Avancerede vejrkort og REST‑sensorer til Home Assistant baseret på Open‑Meteo API.  
+Avancerede vejrkort og REST‑sensorer til Home Assistant baseret på Open‑Meteo API, egen vejr station og Blitzortung lyn integration
 Projektet giver hyperlokale vejrdata, lyn‑detektion, skybrudsrisiko, sigtbarhed, solskin, barometerstatus og en fuld 5‑dages prognose — helt uden API‑nøgler.
 
 ---
