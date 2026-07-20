@@ -5,33 +5,18 @@
 template:
 
   - sensor:
-      - name: "Temperatur Max I Går"
-        unit_of_measurement: "°C"
-        state: >
-          {{ state_attr('sensor.DIN_EGEN_VEJRSTATION_TEMPERATUR', 'max_value') }}
-          
-      - name: "Temperatur Min I Går"
-        unit_of_measurement: "°C"
-        state: >
-          {{ state_attr('sensor.DIN_EGEN_VEJRSTATION_TEMPERATUR', 'min_value') }}
-
-
-      - name: "Max Temp 24t"
-        unique_id: sensor_outdoor_max_yesterday
-        state: >
-          {% set stats = statistics_during_period(
-            'sensor.ws2900_v2_01_18_outdoor_temperature', 
-            start=today_at() - timedelta(days=1), 
-            end=today_at(), 
-            statistic='max') %}
-          {{ stats['sensor.ws2900_v2_01_18_outdoor_temperature'][0]['max'] | round(1) }}
-
-      - name: "Min Temp 24t"
-        unique_id: sensor_outdoor_min_yesterday
-        state: >
-          {% set stats = statistics_during_period(
-            'sensor.ws2900_v2_01_18_outdoor_temperature', 
-            start=today_at() - timedelta(days=1), 
-            end=today_at(), 
-            statistic='min') %}
-          {{ stats['sensor.ws2900_v2_01_18_outdoor_temperature'][0]['min'] | round(1) }}
+      - name: "Vejr Max Temp"
+        unique_id: vejr_max_temp
+        state: "{{ states('input_number.temperatur_maximum_dag') }}"
+        
+      - name: "Vejr Min Temp"
+        unique_id: vejr_min_temp
+        state: "{{ states('input_number.temperatur_minimum_dag') }}"
+        
+      - name: "Vejr Max Tid"
+        unique_id: vejr_max_tid
+        state: "{{ states('input_text.sidste_max_tid') }}"
+        
+      - name: "Vejr Min Tid"
+        unique_id: vejr_min_tid
+        state: "{{ states('input_text.sidste_min_tid') }}"
