@@ -1,0 +1,122 @@
+type: custom:button-card
+entity: sensor.openmeteo_forecast_7_days
+show_name: false
+show_state: false
+show_icon: false
+styles:
+  card:
+    - background: >-
+        linear-gradient(135deg, rgba(255,255,255,0.08) 0%,
+        rgba(255,255,255,0.03) 100%)
+    - backdrop-filter: blur(12px)
+    - border: 1px solid rgba(255,255,255,0.1)
+    - border-radius: 16px
+    - box-shadow: 0 4px 15px rgba(0,0,0,0.2)
+    - padding: 12px 4px
+    - max-width: 480px
+    - width: 480px
+  custom_fields:
+    vejrdata:
+      - text-align: center
+custom_fields:
+  vejrdata: |
+    [[[
+      const e = states['sensor.openmeteo_forecast_7_days'];
+      if (!e || !e.attributes.daily) return 'Indlæser…';
+
+      const d = e.attributes.daily;
+      const h = e.attributes.hourly;
+
+      // Emoji ikoner
+      const icons = {
+        'clear-night': '🌙', 'cloudy': '☁️', 'exceptional': '⚠️',
+        'fog': '🌫️', 'hail': '🌨️', 'lightning': '⛈️',
+        'lightning-rainy': '⛈️', 'partlycloudy': '⛅', 'pouring': '🌧️',
+        'rainy': '🌦️', 'snowy': '❄️', 'snowy-rainy': '🌨️',
+        'sunny': '☀️', 'windy': '💨', 'windy-variant': '💨'
+      };
+
+      // Open-Meteo → HA condition mapping
+      function mapCode(code) {
+        if (code == 0) return 'sunny';
+        if (code <= 3) return 'partlycloudy';
+        if (code <= 55) return 'cloudy';
+        if (code <= 65) return 'rainy';
+        return 'pouring';
+      }
+
+      // Vindretning → bogstaver
+      function windDir(deg) {
+        const dirs = ["N","NØ","Ø","SØ","S","SV","V","NV"];
+        return dirs[Math.round(deg / 45) % 8];
+      }
+
+      let out = `
+      <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
+        <tr>
+      `;
+
+      // DAGNAVNE
+      for (let i = 0; i < 5; i++) {
+        const day = new Date(d.time[i]).toLocaleDateString('da-DK', { weekday: 'long' });
+        out += `
+          <th style="
+            padding:4px;
+            font-size:14px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:1.2px;
+            color:#FFFFFF;
+            margin-bottom:6px;
+          ">
+            ${day}
+          </th>`;
+      }
+      out += `</tr><tr>`;
+
+      // IKONER
+      for (let i = 0; i < 5; i++) {
+        const cond = mapCode(d.weather_code[i]);
+        out += `<td><div style="font-size:40px;margin-bottom:4px">${icons[cond]}</div></td>`;
+      }
+      out += `</tr><tr>`;
+
+      // MAX TEMP
+      for (let i = 0; i < 5; i++) {
+        out += `
+          <td>
+            <div style="font-size:24px;font-weight:700;color:#fb923c">
+              ${d.temperature_2m_max[i]}°
+            </div>
+          </td>`;
+      }
+      out += `</tr><tr>`;
+
+      // MIN TEMP
+      for (let i = 0; i < 5; i++) {
+        out += `
+          <td>
+            <div style="font-size:20px;font-weight:500;color:#8ec5fc;margin-bottom:6px">
+              ${d.temperature_2m_min[i]}°
+            </div>
+          </td>`;
+      }
+      out += `</tr><tr>`;
+
+      // VIND + RETNING + NEDBØR
+      for (let i = 0; i < 5; i++) {
+        const wind = h.wind_speed_10m[i*24].toFixed(1);
+        const dir = windDir(h.wind_direction_10m[i*24]);
+        const rain = d.precipitation_sum[i];
+
+        out += `
+          <td style="font-size:14px;color:#FFFFFF;line-height:1.4;">
+            <div>💨 ${wind} m/s</div>
+            <div>${dir}</div>
+            <div>💧 ${rain} mm</div>
+          </td>`;
+      }
+
+      out += `</tr></table>`;
+      return out;
+    ]]]
