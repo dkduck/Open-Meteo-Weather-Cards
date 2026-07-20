@@ -1,0 +1,120 @@
+type: custom:button-card
+entity: sensor.ws2900_v2_01_18_relative_pressure
+show_name: false
+show_icon: false
+show_state: false
+show_label: true
+label: |
+  [[[
+    const v = parseFloat(entity.state); // Tryk i hPa
+    const t = parseFloat(entity.attributes.trend || 0); // Tendens
+
+    // Tendens
+    let tendens = "Stabilt";
+    let tendensFarve = "#f1c40f";
+    let ikon = "mdi:gauge";
+
+    if (t > 0.5) {
+      tendens = "Stigende";
+      tendensFarve = "#2ecc71";
+      ikon = "mdi:arrow-up-bold";
+    }
+    else if (t < -0.5) {
+      tendens = "Faldende";
+      tendensFarve = "#e74c3c";
+      ikon = "mdi:arrow-down-bold";
+    }
+
+    // ⭐ Vejr-risiko
+    let risiko = "Roligt vejr uden større ændringer";
+    let risikoFarve = "#ffffff";
+
+    if (v < 995 && t < -0.5) {
+      risiko = "Risiko for regn, byger og ustadigt vejr";
+      risikoFarve = "#ffb74d";
+    }
+    else if (v < 1005 && t < 0) {
+      risiko = "Let ustadigt vejr på vej";
+      risikoFarve = "#f1c40f";
+    }
+    else if (v > 1020 && t > 0.5) {
+      risiko = "Stabilt og klart vejr";
+      risikoFarve = "#81d4fa";
+    }
+
+    return `
+      <style>
+        .bc-inner { display:flex; align-items:center; gap:16px; width:100%; height:110px; padding:0 22px; box-sizing:border-box; }
+        .bc-icon  { display:flex; align-items:center; flex-shrink:0; }
+        .bc-info  { display:flex; flex-direction:column; justify-content:center; min-width:0; flex-grow:1; overflow:hidden; text-align:left; }
+
+        .bc-title{
+          text-transform:uppercase;
+          font-size:13px;
+          font-weight:500;
+          color:#ffffff;
+          margin-bottom:8px;
+        }
+
+        .bc-value{
+          font-size:18px;
+          font-weight:700;
+          color: #a2c875;
+          margin-bottom:6px;
+        }
+
+        .bc-tendens{
+          font-size:16px;
+          font-weight:700;
+          color:${tendensFarve};
+          margin-left:6px;
+        }
+
+        .bc-risiko{
+          font-size:14px;
+          font-weight:500;
+          color:${risikoFarve};
+        }
+      </style>
+
+      <div class="bc-inner">
+
+        <div class="bc-icon">
+          <ha-icon icon="${ikon}" style="color:${tendensFarve}; --mdc-icon-size:40px;"></ha-icon>
+        </div>
+
+        <div class="bc-info">
+
+          <!-- ⭐ Linje 1: Overskrift -->
+          <div class="bc-title">Barometer</div>
+
+          <!-- ⭐ Linje 2: Tryk + Tendens -->
+          <div class="bc-value">
+            ${v.toFixed(1)} hPa - 
+            <span class="bc-tendens">${tendens}</span>
+          </div>
+
+          <!-- ⭐ Linje 3: Vejr-risiko -->
+          <div class="bc-risiko">${risiko}</div>
+
+        </div>
+
+      </div>
+    `;
+  ]]]
+styles:
+  card:
+    - background: var(--card-background-color)
+    - border-radius: 12px
+    - border: 1px solid var(--divider-color)
+    - padding: "0"
+    - height: 110px !important
+    - overflow: hidden
+  label:
+    - width: 100%
+    - height: 100%
+    - display: flex
+    - align-items: center
+    - padding: "0"
+    - margin: "0"
+    - text-align: left
