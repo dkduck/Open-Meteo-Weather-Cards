@@ -1,0 +1,65 @@
+type: custom:button-card
+entity: sensor.minutcast_nedbor_15_min
+triggers_update:
+  - sensor.minutcast_nedbor_15_min
+  - sensor.minutcast_nedbor_30_min
+  - sensor.minutcast_nedbor_60_min
+show_name: false
+show_icon: false
+show_state: false
+show_label: true
+label: |
+  [[[
+    const n15 = parseFloat(states['sensor.minutcast_nedbor_15_min']?.state || 0);
+    const n30 = parseFloat(states['sensor.minutcast_nedbor_30_min']?.state || 0);
+    const n60 = parseFloat(states['sensor.minutcast_nedbor_60_min']?.state || 0);
+
+    const getFarve = (val) => val > 0.05 ? '#7eb8f7' : '#a2c875';
+
+    return `
+      <div style="display: flex; align-items: flex-start; width: 100%; padding: 12px 16px; gap: 10px;">
+        
+        <div style="font-size: 38px;">🌧️</div>
+
+        <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left;">
+          
+          <div style="font-size: 13px; font-weight: 700; color: var(--secondary-text-color); margin-bottom: 8px; letter-spacing: 0.1em;">
+            FORVENTET NEDBØR OM
+          </div>
+
+          <div style="display: flex; flex-direction: row; gap: 60px;">
+            
+            <div style="text-align: left;">
+              <div style="font-size: 14px; color: #fff;">15 MIN</div>
+              <div style="font-size: 18px; font-weight: 700; color: ${getFarve(n15)};">${n15.toFixed(1)} mm</div>
+            </div>
+
+            <div style="text-align: left;">
+              <div style="font-size: 14px; color: #fff;">30 MIN</div>
+              <div style="font-size: 18px; font-weight: 700; color: ${getFarve(n30)};">${n30.toFixed(1)} mm</div>
+            </div>
+
+            <div style="text-align: left;">
+              <div style="font-size: 14px; color: #fff;">60 MIN</div>
+              <div style="font-size: 18px; font-weight: 700; color: ${getFarve(n60)};">${n60.toFixed(1)} mm</div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    `;
+  ]]]
+styles:
+  card:
+    - background: var(--card-background-color)
+    - border-radius: 12px
+    - border: 1px solid var(--divider-color)
+    - padding: "0"
+    - height: 110px !important
+    - overflow: hidden
+  label:
+    - width: 100%
+    - height: 100%
+    - display: flex
+    - align-items: center
