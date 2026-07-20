@@ -1,0 +1,132 @@
+type: custom:button-card
+entity: sensor.vejr_timelig_ra
+show_name: false
+show_icon: false
+show_state: false
+show_label: true
+label: |
+  [[[
+    const timelig = states['sensor.vejr_timelig_ra'];
+    if (!timelig || !timelig.attributes.time || !timelig.attributes.visibility) return 'Data mangler';
+    
+    const nu = new Date();
+    const nu_time = nu.getHours();
+    const tider = timelig.attributes.time;
+    
+    let idx_nu = tider.findIndex(t => new Date(t) >= nu);
+    if (idx_nu === -1) idx_nu = nu_time;
+    
+    const sigt_array = timelig.attributes.visibility;
+    const sky_array = timelig.attributes.cloud_cover || [];
+    
+    // Bestem om det er dag eller nat i forhold til kortets primære fokus
+    const er_dag = (nu_time >= 6 && nu_time < 18);
+    
+    let ikon = '';
+    let titel_tekst = '';
+    let status_tekst = '';
+    let farve = 'var(--primary-text-color)';
+    let sub_tekst = '';
+
+    if (er_dag) {
+      // --- DAGTIMERNE: FOCUS PÅ KØRE- & TÅGEVARSEL ---
+      titel_tekst = 'SIGTBARHED & TRAFIK (12T)';
+      let min_sigt = 999999;
+      let min_idx = idx_nu;
+      
+      for (let k = 0; k < 12; k++) {
+        const tjek_idx = idx_nu + k;
+        if (sigt_array[tjek_idx] !== undefined && sigt_array[tjek_idx] < min_sigt) {
+          min_sigt = sigt_array[tjek_idx];
+          min_idx = tjek_idx;
+        }
+      }
+      
+      const d = new Date(tider[min_idx]);
+      const max_tid = d.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'});
+      const sigt_km = (min_sigt / 1000).toFixed(1);
+      
+      if (min_sigt <= 1000) {
+        ikon = '🌫️';
+        status_tekst = 'Tæt tåge / Kritisk sigt';
+        farve = '#e05858'; // Rød
+        sub_tekst = `Sigtbarhed nede på ${sigt_km} km kl. ${max_tid}. Kør forsigtigt!`;
+      } else if (min_sigt <= 4000) {
+        ikon = '🌁';
+        status_tekst = 'Moderat tåge / Diset';
+        farve = '#e07b39'; // Orange
+        sub_tekst = `Nedsat sigt (${sigt_km} km) omkring kl. ${max_tid} ved tæt regn/tåge.`;
+      } else {
+        ikon = '🚗';
+        status_tekst = 'Perfekt sigtbarhed';
+        farve = '#a2c875'; // Grøn
+        sub_tekst = `Klare vejforhold de næste 12 timer (${sigt_km} km sigt).`;
+      }
+      
+    } else {
+      // --- AFTEN/NAT: FOCUS PÅ STJERNEHIMMEL & NORDLYS ---
+      titel_tekst = 'STJERNEHIMMEL (NAT)';
+      
+      // Find det bedste tidspunkt i nat (lavest skydække + bedst sigt)
+      let bedste_idx = idx_nu;
+      let mindst_sky = 100;
+      
+      for (let k = 0; k < 12; k++) {
+        const tjek_idx = idx_nu + k;
+        if (sky_array[tjek_idx] !== undefined) {
+          if (sky_array[tjek_idx] < mindst_sky) {
+            mindst_sky = sky_array[tjek_idx];
+            bedste_idx = tjek_idx;
+          }
+        }
+      }
+      
+      const d = new Date(tider[bedste_idx]);
+      const bedste_tid = d.toLocaleTimeString('da-DK', {hour: '2-digit', minute:'2-digit'});
+      const aktuel_sigt = (sigt_array[bedste_idx] / 1000).toFixed(0);
+      
+      if (mindst_sky <= 15 && sigt_array[bedste_idx] >= 15000) {
+        ikon = '🌌';
+        status_tekst = 'Perfekt stjernehimmel!';
+        farve = '#7eb8f7'; // Flot blå
+        sub_tekst = `Stort set skyfrit (${mindst_sky}%) og krystalklar luft kl. ${bedste_tid}.`;
+      } else if (mindst_sky <= 50) {
+        ikon = '✨';
+        status_tekst = 'Nogenlunde kig';
+        farve = '#e07b39'; // Orange
+        sub_tekst = `Perioder med huller i skyerne (${mindst_sky}%) omkring kl. ${bedste_tid}.`;
+      } else {
+        ikon = '☁️';
+        status_tekst = 'Overskyet i nat';
+        farve = 'var(--secondary-text-color)';
+        sub_tekst = `Dårlige chancer for stjernekig (${mindst_sky}% skydække).`;
+      }
+    }
+    
+    return `
+      <div style="display: flex; align-items: center; width: 100%; padding: 12px; gap: 15px;">
+        <div style="font-size: 38px; line-height: 1; min-width: 45px; text-align: center;">${ikon}</div>
+        
+        <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left;">
+          <div style="font-size: 13px; font-weight: 700; uppercase; letter-spacing: 0.05em; color: var(--secondary-text-color); margin-bottom: 2px;">${titel_tekst}</div>
+          <div style="font-size: 20px; font-weight: 700; color: ${farve}; line-height: 1.2;">
+            ${status_tekst}
+          </div>
+          <div style="font-size: 14px; color: #fff; margin-top: 4px; line-height: 1.2;">${sub_tekst}</div>
+        </div>
+      </div>
+    `;
+  ]]]
+styles:
+  card:
+    - background: var(--card-background-color)
+    - border-radius: 12px
+    - border: 1px solid var(--divider-color)
+    - padding: "0"
+    - height: 110px !important
+    - overflow: hidden
+  label:
+    - width: 100%
+    - height: 100%
+    - display: flex
+    - align-items: center
