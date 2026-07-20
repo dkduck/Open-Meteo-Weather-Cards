@@ -5,6 +5,10 @@
 template:
 
   - sensor:
+
+      #----------------------------------------
+      # Max/Min temperatur med tidspunkt
+      #----------------------------------------
       - name: "Vejr Max Temp"
         unique_id: vejr_max_temp
         state: "{{ states('input_number.temperatur_maximum_dag') }}"
@@ -20,3 +24,76 @@ template:
       - name: "Vejr Min Tid"
         unique_id: vejr_min_tid
         state: "{{ states('input_text.sidste_min_tid') }}"
+
+      #----------------------------------------
+      # Forventet nedbør 15/30/60 minutter
+      #----------------------------------------
+      - name: "Minutcast nedbør 15 min"
+        unit_of_measurement: "mm"
+        icon: mdi:weather-rainy
+        state: >
+          {% set times = state_attr('sensor.vejr_minutcast_ra', 'time') %}
+          {% set prec  = state_attr('sensor.vejr_minutcast_ra', 'precipitation') %}
+          {% if times and prec %}
+            {% set ns = namespace(total=0) %}
+            {# Find den korteste længde af de to arrays for at undgå indeks-fejl #}
+            {% set max_len = [times|length, prec|length] | min %}
+            {% for i in range(max_len) %}
+              {% set t_time = as_datetime(times[i]) %}
+              {% if t_time is not none %}
+                {% set diff = (t_time.astimezone() - now()).total_seconds() %}
+                {% if diff >= 0 and diff <= 900 %}
+                  {% set ns.total = ns.total + prec[i] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.total | round(2) }}
+          {% else %}
+            unavailable
+          {% endif %}
+
+      - name: "Minutcast nedbør 30 min"
+        unit_of_measurement: "mm"
+        icon: mdi:weather-rainy
+        state: >
+          {% set times = state_attr('sensor.vejr_minutcast_ra', 'time') %}
+          {% set prec  = state_attr('sensor.vejr_minutcast_ra', 'precipitation') %}
+          {% if times and prec %}
+            {% set ns = namespace(total=0) %}
+            {% set max_len = [times|length, prec|length] | min %}
+            {% for i in range(max_len) %}
+              {% set t_time = as_datetime(times[i]) %}
+              {% if t_time is not none %}
+                {% set diff = (t_time.astimezone() - now()).total_seconds() %}
+                {% if diff >= 0 and diff <= 1800 %}
+                  {% set ns.total = ns.total + prec[i] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.total | round(2) }}
+          {% else %}
+            unavailable
+          {% endif %}
+
+      - name: "Minutcast nedbør 1 time"
+        unit_of_measurement: "mm"
+        icon: mdi:weather-rainy
+        state: >
+          {% set times = state_attr('sensor.vejr_minutcast_ra', 'time') %}
+          {% set prec  = state_attr('sensor.vejr_minutcast_ra', 'precipitation') %}
+          {% if times and prec %}
+            {% set ns = namespace(total=0) %}
+            {% set max_len = [times|length, prec|length] | min %}
+            {% for i in range(max_len) %}
+              {% set t_time = as_datetime(times[i]) %}
+              {% if t_time is not none %}
+                {% set diff = (t_time.astimezone() - now()).total_seconds() %}
+                {% if diff >= 0 and diff <= 3600 %}
+                  {% set ns.total = ns.total + prec[i] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.total | round(2) }}
+          {% else %}
+            unavailable
+          {% endif %}
