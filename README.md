@@ -29,7 +29,7 @@ Projektet giver hyperlokale vejrdata, lyn‑detektion, skybrudsrisiko, sigtbarhe
 ## 🧩 Kortoversigt
 
 ### Vejret lige nu
-Live‑data fra Open‑Meteo med temperatur, vind, nedbør og ikon.
+Live‑data fra egen vejrstation med temperatur, vind, nedbør, følses nu og ikon.
 
 ### 5‑dages vejrudsigt
 Max/min temperatur, nedbør, vind og ikon for de næste fem dage.
@@ -46,7 +46,7 @@ Nowcast‑baseret intensitet med farvekoder.
 ### Lyn detektion
 Afstand, retning og antal registrerede lyn.
 
-### Max & Min temperatur for dagen
+### Max & Min temperatur for dagen + Nuværende  UV index
 Udregnet fra egen vejr station, og 4 hjælpere
 
 ### Sigtbarhed og trafik
