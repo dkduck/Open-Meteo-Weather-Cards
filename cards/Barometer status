@@ -1,5 +1,5 @@
 type: custom:button-card
-entity: sensor.ws2900_v2_01_18_relative_pressure
+entity: sensor.DIN_EGEN_BAROMETER_SENSOR
 show_name: false
 show_icon: false
 show_state: false
