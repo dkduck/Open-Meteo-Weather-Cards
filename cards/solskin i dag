@@ -1,0 +1,84 @@
+type: custom:button-card
+entity: sensor.vejr_timelig_ra
+show_name: false
+show_icon: false
+show_state: false
+show_label: true
+label: |
+  [[[
+    const timelig = states['sensor.vejr_timelig_ra'];
+    if (!timelig || !timelig.attributes.time || !timelig.attributes.cloud_cover) return 'Data mangler';
+    
+    const nu = new Date();
+    const tider = timelig.attributes.time;
+    let idx_nu = tider.findIndex(t => new Date(t) >= nu);
+    if (idx_nu === -1) idx_nu = nu.getHours();
+    
+    const sky_array = timelig.attributes.cloud_cover;
+    let sol_timer = 0;
+    let scannet_timer = 0;
+    
+    // Vi scanner de næste 14 timer frem (eller stopper hvis arrayet slutter), men tæller kun i dagtimerne
+    for (let k = 0; k < 14; k++) {
+      const tjek_idx = idx_nu + k;
+      if (tider[tjek_idx] !== undefined && sky_array[tjek_idx] !== undefined) {
+        const time_tjek = new Date(tider[tjek_idx]).getHours();
+        
+        // Vi tæller kun soltimer mellem kl. 06:00 og 21:00
+        if (time_tjek >= 6 && time_tjek <= 21) {
+          scannet_timer++;
+          if (sky_array[tjek_idx] <= 20) {
+            sol_timer++;
+          }
+        }
+      }
+    }
+    
+    let ikon = '☁️';
+    let status_tekst = 'Overvejende gråvejr';
+    let farve = 'var(--secondary-text-color)';
+    let sub_tekst = 'Skyerne kommer til at dominere resten af dagen';
+    
+    if (sol_timer >= 7) {
+      ikon = '☀️';
+      status_tekst = 'Masser af sol i vente!';
+      farve = '#e07b39'; // Flot sol-orange
+      sub_tekst = 'Rul markisen ud – perfekt terrassevejr';
+    } else if (sol_timer >= 3) {
+      ikon = '⛅';
+      status_tekst = 'Solen kigger frem';
+      farve = '#7eb8f7'; // Blå
+      sub_tekst = 'Perioder med fin blå himmel ind imellem skyerne';
+    } else if (sol_timer > 0) {
+      ikon = '🌤️';
+      status_tekst = 'Kortvarigt solskin';
+      farve = '#a2c875'; // Grønlig
+      sub_tekst = 'Hold øje med hullerne i skydækket';
+    }
+    
+    return `
+      <div style="display: flex; align-items: center; width: 100%; padding: 12px; gap: 15px;">
+        <div style="font-size: 38px; line-height: 1; min-width: 45px; text-align: center;">${ikon}</div>
+        <div style="display: flex; flex-direction: column; flex-grow: 1; text-align: left;">
+          <div style="font-size: 13px; font-weight: 700; uppercase; letter-spacing: 0.05em; color: var(--secondary-text-color); margin-bottom: 2px;">REELT SOLSKIN I DAG</div>
+          <div style="font-size: 20px; font-weight: 700; color: ${farve}; line-height: 1.2;">
+            ${sol_timer} ${sol_timer === 1 ? 'soltime' : 'soltimer'} i vente
+          </div>
+          <div style="font-size: 14px; color: #fff; margin-top: 4px; line-height: 1.2;">${sub_tekst}</div>
+        </div>
+      </div>
+    `;
+  ]]]
+styles:
+  card:
+    - background: var(--card-background-color)
+    - border-radius: 12px
+    - border: 1px solid var(--divider-color)
+    - padding: "0"
+    - height: 110px !important
+    - overflow: hidden
+  label:
+    - width: 100%
+    - height: 100%
+    - display: flex
+    - align-items: center
