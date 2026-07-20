@@ -28,7 +28,7 @@ rest:
           - sunset
 
 
-      - name: "Vejr timelig rå"
+      - name: "Vejr timelig rA"
         value_template: "OK"
         json_attributes_path: "$.hourly"
         json_attributes:
@@ -73,21 +73,4 @@ rest:
           - daily
           - hourly
 
-  # --- 16 dages vejrudsigt
-  - resource: "https://api.open-meteo.com/v1/forecast?latitude=56.08&longitude=10.02&hourly=temperature_2m,precipitation,apparent_temperature,showers,rain,snowfall,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cape,cloud_cover,k_index&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,weathercode,sunrise,sunset&models=ecmwf_ifs&timezone=Europe%2FBerlin&wind_speed_unit=ms&forecast_days=16"
-    scan_interval: 21600
-    sensor:
-      - name: "Vejr daglig ra 16 dage"
-        value_template: "OK"
-        json_attributes_path: "$.daily"
-        json_attributes:
-          - time
-          - temperature_2m_max
-          - temperature_2m_min
-          - precipitation_sum
-          - wind_speed_10m_max
-          - wind_gusts_10m_max
-          - wind_direction_10m_dominant
-          - weathercode
-          - sunrise
-          - sunset
+
