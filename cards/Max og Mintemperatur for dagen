@@ -10,10 +10,10 @@ label: |
 
 
   [[[
-    var tmax = states['input_number.temperatur_maximum_dag'].state;
-    var tmin = states['input_number.temperatur_minimum_dag'].state;
-    var tidmax = states['input_text.sidste_max_tid'].state;
-    var tidmin = states['input_text.sidste_min_tid'].state;
+    var tmax = states['sensor.vejr_max_temp'].state;
+    var tmin = states['sensor.vejr_min_temp'].state;
+    var tidmax = states['sensor.vejr_max_tid'].state;
+    var tidmin = states['sensor.vejr_min_tid'].state;
     var uv = states['sensor.DIN_EGEN_UV_SENSOR'].state;
     var unit = '°C';
     return `
