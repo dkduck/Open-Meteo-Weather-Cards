@@ -3,3 +3,9 @@ input_number.temperatur_maximum_dag (Numerisk input)
 
 Temperatur Minimum Dag:
 input_number.temperatur_minimum_dag (Numerisk input)
+
+Vejr Max Tid:
+sensor.vejr_max_tid (Template)
+
+Vejr Min Tid:
+sensor.vejr_min_tid (Template)
