@@ -16,7 +16,7 @@ Projektet giver hyperlokale vejrdata, lyn‑detektion, skybrudsrisiko, sigtbarhe
 - Max & Min temperatur for dagen
 - Sigtbarhed og trafik
 - Skybruds risiko
-- Solskin i dag (soltimer, UV, solopgang/solnedgang)
+- Solskin i dag (soltimer)
 
 ---
 
@@ -47,7 +47,7 @@ Nowcast‑baseret intensitet med farvekoder.
 Afstand, retning og antal registrerede lyn.
 
 ### Max & Min temperatur for dagen
-Udregnet fra Open‑Meteo daily forecast.
+Udregnet fra egen vejr station, og 4 hjælpere
 
 ### Sigtbarhed og trafik
 Sigtbarhed i meter + trafikrelevans (tåge, dis, regn).
@@ -56,13 +56,16 @@ Sigtbarhed i meter + trafikrelevans (tåge, dis, regn).
 Konvektiv nedbør + intensitet.
 
 ### Solskin i dag
-Soltimer, UV‑index, solopgang/solnedgang.
+Soltimer.
 
 ---
 
 ## 🔧 Krav
 - Home Assistant 2024.6+
-- Button‑Card eller Mushroom
+- Egen vejrstation der leverer data
+- Blitzortung Integration
+- Custom Button‑Card
+- Custom-html-card
 - REST‑integration aktiveret
 - Open‑Meteo API (gratis, ingen nøgle)
 
