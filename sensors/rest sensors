@@ -2,7 +2,7 @@
 # REST SENSORS - Indsættes manuelt i comfiguration.yaml
 #───────────────────────────────────────────────────────────────────────────────────────────────────
 # Geo lokation skiftes til egen længde og breddegrad
-# Eksempel: Find disse i alle rest sensores nedenunder: latitude=58.08&longitude=12.02&
+# Eksempel: Find disse i alle rest sensores nedenunder: latitude=58.08&longitude=12.02
 # Indsæt din egne lokation, kan f.eks. findes med Google Maps
 #───────────────────────────────────────────────────────────────────────────────────────────────────
 
