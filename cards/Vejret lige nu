@@ -1,0 +1,144 @@
+type: custom:html-template-card
+ignore_line_breaks: true
+card_mod:
+  style: |
+    ha-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+      padding: 16px 15px !important;
+      position: relative !important;
+      display: block !important;
+    }
+content: >
+  <style>
+    .wx-container {
+      display: flex;
+      width: 100%;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .wx-content-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .wx-left-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex: 1.2;
+      padding-left: 5px;
+    }
+    .wx-temp-box { display: flex; flex-direction: column; }
+    .wx-temp { font-size: 52px; font-weight: 700; color: #FFF; letter-spacing: -2px; }
+    .wx-unit { font-size: 20px; opacity: 0.6; margin-left: 2px; }
+    .wx-pill { font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; margin-top: 6px; text-transform: uppercase; }
+    .wx-icon-section { display: flex; flex-direction: column; align-items: center; min-width: 65px; }
+    .wx-condition-text { font-size: 10px; font-weight: 700; color: #FFF; opacity: 0.8; margin-top: 2px; text-transform: uppercase; }
+    .wx-stats-column { display: flex; flex-direction: column; gap: 12px; border-left: 1px solid rgba(255,255,255,0.15); padding-left: 20px; margin-right: 35px; }
+    .wx-stat-item { display: flex; align-items: center; gap: 15px; }
+    .wx-stat-label { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.9); text-transform: uppercase; }
+    .wx-stat-value { font-size: 16px; font-weight: 500; color: #FFF; }
+    .wx-stat-unit { font-size: 11px; opacity: 0.6; margin-left: 3px; }
+    .wx-unit-feelslike { font-size: 10px; margin-left: 2px; }
+    .wx-feelslike { background:#3DAB0A; color:#ffff; font-size:14px; font-weight:700;padding:1px 9px;border-radius:20px; }
+  </style>
+
+  {% set temp = states('DIN_EGEN_VEJRSTATION_TEMPERATUR_SENSOR') | float(0)
+  %} {% set wind = states('DIN_EGEN_VEJRSTATION_VIND_SENSOR') | float(0) %} {%
+  set rain = states('DIN_EGEN_VEJRSTATION_DAGLIG_REGN_SENSOR') | float(0) %} {%
+  set humidity = states('DIN_EGEN_VEJRSTATION_FUGTIGHEDS_SENSOR') | float(0) %} {% set
+  feelslike = states('DIN_EGEN_VEJRSTATION_FØLES_SOM_SENSOR') | float(0)
+  %}
+
+  {% set code = states('sensor.vejr_daglig_ra') | int(3) %}
+
+  {% set om_icon = {
+    0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+    45:'🌫️',48:'🌫️',
+    51:'🌦️',53:'🌦️',55:'🌧️',
+    56:'🌧️',57:'🌧️',
+    61:'🌧️',63:'🌧️',65:'🌧️',
+    66:'🌧️',67:'🌧️',
+    71:'🌨️',73:'🌨️',75:'❄️',
+    77:'❄️',
+    80:'🌦️',81:'🌧️',82:'⛈️',
+    85:'🌨️',86:'❄️',
+    95:'⛈️',96:'⛈️',99:'⛈️'
+  } %}
+
+  {% set om_text = {
+    0:'Klar himmel',1:'Overvejende klart',2:'Delvist skyet',3:'Skyet',
+    45:'Tåge',48:'Rimtåge',
+    51:'Let finregn',53:'Finregn',55:'Kraftig finregn',
+    56:'Let isregn',57:'Isregn',
+    61:'Let regn',63:'Regn',65:'Kraftig regn',
+    66:'Let frysende regn',67:'Frysende regn',
+    71:'Let sne',73:'Sne',75:'Kraftig sne',
+    77:'Snefnug',
+    80:'Let regnbyger',81:'Regnbyger',82:'Kraftige regnbyger',
+    85:'Let snebyger',86:'Snebyger',
+    95:'Torden',96:'Torden m. hagl',99:'Kraftig torden m. hagl'
+  } %}
+
+  {% set big_icon = om_icon.get(code, '☁️') %} {% set cond_lbl =
+  om_text.get(code, 'Skyet') %}
+
+
+
+  <div class="wx-container">
+    <div class="wx-content-wrapper">
+
+        <!-- ⭐ Vejr ikon -->
+      <div class="wx-left-group">
+        <div class="wx-icon-section">
+          <div style="font-size:70px; line-height:1;">{{ big_icon }}</div>
+          <div class="wx-condition-text"><div style="font-size:16px; line-height:1;">{{ cond_lbl }}</div></div>
+        </div>
+
+        <!-- ⭐ Temperatur & Føles som -->
+        <div class="wx-temp-box">
+          <div class="wx-temp">{{ temp | round(1) }}<span class="wx-unit">°C</span></div>
+          <span class="wx-feelslike">
+            Føles: {{ feelslike }}<span class="wx-unit-feelslike">°C</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="wx-stats-column">
+
+        <!-- ⭐ Regn med nyt ikon -->
+        <div class="wx-stat-item">
+          <img src="https://api.iconify.design/solar:cloud-rain-bold-duotone.svg?color=%233498db" width="24">
+          <div class="wx-stat-info">
+            <span class="wx-stat-label">Regn</span>
+            <span class="wx-stat-value">{{ rain }}<span class="wx-stat-unit">mm</span></span>
+          </div>
+        </div>
+
+        <!-- ⭐ Vind med nyt ikon -->
+        <div class="wx-stat-item">
+          <img src="https://api.iconify.design/solar:wind-bold-duotone.svg?color=%23f1c40f" width="24">
+          <div class="wx-stat-info">
+            <span class="wx-stat-label">Vind</span>
+            <span class="wx-stat-value">{{ wind | round(1) }}<span class="wx-stat-unit">m/s</span></span>
+          </div>
+        </div>
+
+        <!-- ⭐ Fugtighed med nyt ikon -->
+        <div class="wx-stat-item">
+          <img src="https://api.iconify.design/solar:waterdrop-outline.svg?color=%23a29bfe" width="24">
+          <div class="wx-stat-info">
+            <span class="wx-stat-label">Fugt</span>
+            <span class="wx-stat-value">{{ humidity }}<span class="wx-stat-unit">%</span></span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
