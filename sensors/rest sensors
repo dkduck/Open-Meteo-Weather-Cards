@@ -1,0 +1,93 @@
+#───────────────────────────────────────────────────────────────────────────────────────────────────
+# REST SENSORS - Indsættes manuelt i comfiguration.yaml
+#───────────────────────────────────────────────────────────────────────────────────────────────────
+# Geo lokation skiftes til egen længde og breddegrad
+# Eksempel: Find disse i alle rest sensores nedenunder: latitude=58.08&longitude=12.02&
+# Indsæt din egne lokation, kan f.eks. findes med Google Maps
+#───────────────────────────────────────────────────────────────────────────────────────────────────
+
+rest:
+
+  # --- Vejret daglig og timevis ---
+  - resource: "https://api.open-meteo.com/v1/forecast?latitude=56.08&longitude=10.02&hourly=temperature_2m,precipitation,apparent_temperature,showers,rain,snowfall,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cape,cloud_cover,k_index&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,weathercode,sunrise,sunset&models=ecmwf_ifs&timezone=Europe%2FBerlin&wind_speed_unit=ms&forecast_days=5"
+    scan_interval: 3600
+    sensor:
+      - name: "Vejr daglig rå"
+        value_template: "OK"
+        json_attributes_path: "$.daily"
+        json_attributes:
+          - time
+          - temperature_2m_max
+          - temperature_2m_min
+          - precipitation_sum
+          - wind_speed_10m_max
+          - wind_gusts_10m_max
+          - wind_direction_10m_dominant
+          - weathercode
+          - sunrise
+          - sunset
+
+
+      - name: "Vejr timelig rå"
+        value_template: "OK"
+        json_attributes_path: "$.hourly"
+        json_attributes:
+          - time
+          - temperature_2m
+          - apparent_temperature
+          - precipitation
+          - rain
+          - showers
+          - snowfall
+          - visibility
+          - wind_speed_10m
+          - wind_direction_10m
+          - wind_gusts_10m
+          - cape
+          - cloud_cover
+          - k_index
+
+
+  # --- 15-minutters minutcast (6 timer frem) ---
+  - resource: "https://api.open-meteo.com/v1/forecast?latitude=56.08&longitude=10.02&minutely_15=precipitation,weathercode,wind_speed_10m,wind_gusts_10m&timezone=Europe%2FBerlin&wind_speed_unit=ms&forecast_days=1"
+    scan_interval: 900   # Opdater hvert 15. minut
+    sensor:
+      - name: "Vejr minutcast rå"
+        value_template: "OK"
+        json_attributes_path: "$.minutely_15"
+        json_attributes:
+          - time
+          - precipitation
+          - weathercode
+          - wind_speed_10m
+          - wind_gusts_10m
+
+  # --- 7 dages vejrudsigt ---
+  - resource: https://api.open-meteo.com/v1/forecast?latitude=56.0826&longitude=10.0225&timezone=Europe%2FCopenhagen&forecast_days=7&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms
+    method: GET
+    scan_interval: 3600
+    sensor:
+      - name: OpenMeteo Forecast 7 Days
+        value_template: "{{ value_json.daily.time[0] }}"
+        json_attributes:
+          - daily
+          - hourly
+
+  # --- 16 dages vejrudsigt
+  - resource: "https://api.open-meteo.com/v1/forecast?latitude=56.08&longitude=10.02&hourly=temperature_2m,precipitation,apparent_temperature,showers,rain,snowfall,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cape,cloud_cover,k_index&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,weathercode,sunrise,sunset&models=ecmwf_ifs&timezone=Europe%2FBerlin&wind_speed_unit=ms&forecast_days=16"
+    scan_interval: 21600
+    sensor:
+      - name: "Vejr daglig rå 16 dage"
+        value_template: "OK"
+        json_attributes_path: "$.daily"
+        json_attributes:
+          - time
+          - temperature_2m_max
+          - temperature_2m_min
+          - precipitation_sum
+          - wind_speed_10m_max
+          - wind_gusts_10m_max
+          - wind_direction_10m_dominant
+          - weathercode
+          - sunrise
+          - sunset
